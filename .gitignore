@@ -28,6 +28,6 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 target/
-test/
 .idea/
 pom.xml
+src/client/test.mp3

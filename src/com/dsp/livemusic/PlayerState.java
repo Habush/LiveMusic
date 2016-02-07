@@ -5,5 +5,5 @@ package com.dsp.livemusic;
  */
 public enum PlayerState {
 
-    PLAY, PAUSE, STOP;
+    PLAY, PAUSE, FINISHED, NOTSTARTED;
 }

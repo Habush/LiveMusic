@@ -6,6 +6,7 @@ import org.jgroups.JChannel;
 import org.jgroups.MembershipListener;
 import org.jgroups.View;
 import org.jgroups.blocks.MessageDispatcher;
+import org.jgroups.blocks.RpcDispatcher;
 import org.jgroups.conf.ClassConfigurator;
 
 import java.io.FileInputStream;
@@ -14,44 +15,52 @@ import java.io.IOException;
 /**
  * Created by Xabush Semrie on 2/4/2016.
  */
-public class Node implements Runnable, MembershipListener{
+public class Node implements  MembershipListener {
 
     private JChannel channel;
+    private JChannel rpcChannel;
     private String channelName;
     public static final short ID = 3500;
     private String filename;
-    private  GroupManager gpManager;
+    private GroupManager gpManager;
     private PlayerHandler playerHandler;
     private MessageDispatcher msgDispatcher;
+    private RpcDispatcher rpcDispactcher;
     private State state;
-    private PlayerState playerState = PlayerState.STOP;
     private int frames = 0;
 
 
-    public Node(String filename, String name)
-    {
+    public Node(String filename, String name) throws Exception {
         this.filename = filename;
         this.channelName = name;
         this.gpManager = new GroupManager(name);
+        playerHandler = new PlayerHandler(new FileInputStream(filename));
     }
 
-    public void start() throws Exception
-    {
+    public void start() throws Exception {
         ClassConfigurator.add((short) 3500, FileHeader.class);
         channel = new JChannel().name(channelName);
-        //rpcDispatcher = new RpcDispatcher(channel, this);
+        rpcChannel = new JChannel().name(channelName + "rpc");
         gpManager.setChannel(channel);
-        msgDispatcher = new MessageDispatcher(channel,null, this);
+        msgDispatcher = new MessageDispatcher(channel, null, this);
+        rpcDispactcher = new RpcDispatcher(rpcChannel, this);
         channel.connect(GroupManager.GROUP_NAME);
+        rpcChannel.connect(GroupManager.GROUP_NAME);
     }
 
-    public void playFromStream() throws JavaLayerException, IOException
-    {
-        playerHandler = new PlayerHandler(new FileInputStream(filename));
-        System.out.println(filename);
-        playerState = PlayerState.PLAY;
-        Thread thread = new Thread(this);
-        thread.start();
+    public void playFromStream() throws JavaLayerException, IOException {
+        playerHandler.play();
+    }
+
+    public void pauseStream() throws JavaLayerException{
+        playerHandler.pause();
+    }
+
+    public void closePlayer() {
+        playerHandler.close();
+    }
+    public void resumePlayer(){
+        playerHandler.resume();
     }
 
     public State getState() {
@@ -94,23 +103,6 @@ public class Node implements Runnable, MembershipListener{
         return filename;
     }
 
-    public void run()
-    {
-        System.out.println("Thread running");
-        try {
-            while (true) {
-                playerHandler.getPlayer().play();
-//                System.out.println("Finished Playing a frame!");
-                if (playerHandler.getPlayer().isComplete()) break;
-            }
-
-            System.out.println("Finished playing frames: The number of total frames counted is = " + frames);
-        } catch (JavaLayerException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Override
     public void viewAccepted(View view) {
         gpManager.viewUpdate(view);
@@ -132,11 +124,7 @@ public class Node implements Runnable, MembershipListener{
     }
 
     public PlayerState getPlayerState() {
-        return playerState;
-    }
-
-    public void setPlayerState(PlayerState playerState) {
-        this.playerState = playerState;
+        return playerHandler.getPlayerState();
     }
 
     public int getFrames() {
@@ -146,12 +134,8 @@ public class Node implements Runnable, MembershipListener{
     public void setFrames(int frames) {
         this.frames = frames;
     }
+
+    public RpcDispatcher getRpcDispactcher() {
+        return rpcDispactcher;
+    }
 }
-
-
-
-
-
-
-
-

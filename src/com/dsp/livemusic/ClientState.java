@@ -4,9 +4,7 @@ import org.jgroups.Message;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.util.Util;
 
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,10 +48,6 @@ public class ClientState implements RequestHandler, State {
             } else {
                 out.write(msg.getRawBuffer(), msg.getOffset(), msg.getLength());
                 node.setFrames(frames);
-                if (node.getPlayerState() != PlayerState.PLAY && frames > 100) {
-                    node.playFromStream();
-                }
-
             }
 
         } catch (Exception e) {
