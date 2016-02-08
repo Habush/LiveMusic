@@ -1,5 +1,6 @@
 package com.dsp.livemusic.view;
 
+import com.dsp.livemusic.control.MainApp;
 import com.dsp.livemusic.model.SongModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -33,7 +34,7 @@ public class PlayerViewModel {
     @FXML
     private Button nextButton;
     @FXML
-    private Button shuffleButton;
+    private Button stopButton;
     @FXML
     private Button repeatButton;
     @FXML
@@ -87,6 +88,10 @@ public class PlayerViewModel {
     @FXML
     private GridPane gridPane;
 
+    //TitlePane
+    @FXML
+    private TitledPane nodePane;
+
     //SplitPane
     @FXML
     private SplitPane splitPane;
@@ -112,12 +117,34 @@ public class PlayerViewModel {
     private TableColumn<SongModel, String> yearCol;
 
     //App classes
-
+    private MainApp mainApp;
 
 
 
     @FXML
     private void initialize()
+    {
+
+    }
+
+    public void setMainApp(MainApp app)
+    {
+        this.mainApp = app;
+    }
+
+    @FXML
+    public void handlePlay(){
+
+    }
+
+    @FXML
+    public void handleOpen()
+    {
+
+    }
+
+    @FXML
+    public void handleStop()
     {
 
     }
