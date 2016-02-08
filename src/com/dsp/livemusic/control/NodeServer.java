@@ -3,10 +3,10 @@ package com.dsp.livemusic;
 /**
  * Created by Natnael Zeleke on 2/7/2016.
  */
-public class NodeClient {
+public class NodeServer {
 
     public static void main(String[] args) throws Exception{
-        Node node =  new Node("src/client/test.mp3","Client");
-        node.start();
+//        Node node = new Node("src/com/dsp/livemusic/test.mp3","Natnael");
+//        node.start();
     }
 }

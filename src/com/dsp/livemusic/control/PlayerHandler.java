@@ -1,7 +1,10 @@
-package com.dsp.livemusic.control;
+package com.dsp.livemusic;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
+import javazoom.jl.player.advanced.AdvancedPlayer;
+import javazoom.jl.player.advanced.PlaybackEvent;
+import javazoom.jl.player.advanced.PlaybackListener;
 
 import java.io.FileInputStream;
 
@@ -18,12 +21,17 @@ public class PlayerHandler{
     //locking object used to communicate with player thread
     private final Object playerLock = new Object();
 
+    public PlayerHandler(){
 
-    public PlayerHandler(FileInputStream in) throws JavaLayerException{
-
-        player = new Player(in);
-
+        player = null;
     }
+
+//    public PlayerHandler(FileInputStream in) throws JavaLayerException{
+//
+//        player = new Player(in);
+//
+//    }
+
 
     public void setNode(Node node)
     {
@@ -81,10 +89,6 @@ public class PlayerHandler{
             return playerState == PlayerState.PLAY;
         }
     }
-
-    /**
-     * Stops playback. If not playing does nothing
-     */
     public void stop(){
         synchronized (playerLock){
             playerState = PlayerState.FINISHED;
@@ -138,5 +142,10 @@ public class PlayerHandler{
 
     public PlayerState getPlayerState() {
         return playerState;
+    }
+
+    public void setInputStream(FileInputStream in) throws JavaLayerException{
+
+        player = new Player(in);
     }
 }

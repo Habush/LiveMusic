@@ -1,7 +1,10 @@
-package com.dsp.livemusic.control;
+package com.dsp.livemusic;
 
+import com.dsp.livemusic.Node;
+import com.dsp.livemusic.State;
 import org.jgroups.Address;
 import org.jgroups.JChannel;
+import org.jgroups.MembershipListener;
 import org.jgroups.View;
 
 import java.util.Map;
@@ -23,6 +26,7 @@ public class GroupManager {
     private View view;
     private Node node;
     private State state;
+    private String serverName;
 
     public GroupManager(String userName){
         this.userName = userName;
@@ -76,11 +80,14 @@ public class GroupManager {
 
     public void updateServer(String userName) throws Exception{
 
-         if(getUserName().equals(userName)){
-            System.out.println("You Are server!");
+        setServerName(userName);
+        if(getUserName().equals(userName)){
+        System.out.println("You Are server!");
+            setServer(true);
         }
         else {
             System.out.println("You Are Client");
+            setServer(false);
         }
     }
 
@@ -125,5 +132,13 @@ public class GroupManager {
 
     public void setChannel(JChannel channel) {
         this.channel = channel;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 }
