@@ -1,5 +1,7 @@
-package com.dsp.livemusic;
+package com.dsp.livemusic.control;
 
+import com.dsp.livemusic.model.Metadata;
+import org.apache.log4j.Logger;
 import org.jgroups.Message;
 import org.jgroups.blocks.*;
 import org.jgroups.util.RspList;
@@ -16,10 +18,11 @@ public class ServerState implements State, RequestHandler {
 
 
     private FileInputStream in;
-    private RpcDispatcher rpcDispatcher;
     private RspList rspList;
     private RequestOptions opts = new RequestOptions(ResponseMode.GET_ALL, 5000);
     private Node node;
+    private MFileHandler mFileHandler;
+    private final static Logger log = Logger.getLogger(ServerState.class);
 
     public ServerState(Node node) throws Exception {
         this.node = node;
@@ -35,13 +38,14 @@ public class ServerState implements State, RequestHandler {
 
     public void sendFrame() throws Exception {
         Util.keyPress("Enter to start playback: ");
+        sendMetada();
         int read = 0;
         while (read != -1) {
 
             byte[] buff = new byte[1044];
             read = in.read(buff);
             node.setFrames(node.getFrames() + 1);
-            sendMessage(buff, 0, buff.length, false, node.getFrames());
+            sendMessage(buff, 0, buff.length, false, node.getFrames(), 1);
             if (node.getFrames() == 100)
             {
                 if (node.getPlayerState() == PlayerState.NOTSTARTED)
@@ -51,6 +55,7 @@ public class ServerState implements State, RequestHandler {
                         public void run() {
                             try {
                                 invokeMethod();
+                                log.debug("inovkeMethod return");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -61,14 +66,14 @@ public class ServerState implements State, RequestHandler {
                 }
             }
         }
-        sendMessage(null, 0, 0, true, node.getFrames());
+        sendMessage(null, 0, 0, true, node.getFrames(), 1);
         System.out.println("Sent Message");
     }
 
     private void sendMessage(byte[] buf, int offset, int length,
-                             boolean eof, int fr) throws Exception {
+                             boolean eof, int fr, int type) throws Exception {
         Message msg = new Message(null, null, buf, offset, length).putHeader(Node.ID, new
-                FileHeader(node.getFilename(), eof, fr));
+                FileHeader(node.getFilename(), eof, fr, type));
         // set this if the sender doesn't want to receive the file
         msg.setTransientFlag(Message.TransientFlag.DONT_LOOPBACK);
         rspList = node.getMsgDispatcher().castMessage(null, msg, opts);
@@ -82,7 +87,7 @@ public class ServerState implements State, RequestHandler {
         while (true) {
             command = scanner.nextLine().trim();
             MethodCall mCall;
-            if (command.equalsIgnoreCase("stop")) break;
+            if (command.equalsIgnoreCase("close")) break;
             switch (command) {
                 case "play":
                     if (node.getPlayerState() == PlayerState.PLAY) {
@@ -90,7 +95,6 @@ public class ServerState implements State, RequestHandler {
                     } else{
                         mCall = new MethodCall(node.getClass().getMethod("playFromStream", null));
                         rspList = node.getRpcDispactcher().callRemoteMethods(null, mCall, opts);
-                        System.out.println(rspList);
                     }
                     break;
                 case "pause":
@@ -99,21 +103,25 @@ public class ServerState implements State, RequestHandler {
                     else{
                         mCall = new MethodCall(node.getClass().getMethod("pauseStream", null));
                         rspList = node.getRpcDispactcher().callRemoteMethods(null, mCall, opts);
+                        log.debug("Play dispatched");
                         System.out.println(rspList);
                     }
                     break;
-                case "close":
-                    mCall = new MethodCall(node.getClass().getMethod("closePlayer", null));
+                case "stop":
+                    mCall = new MethodCall(node.getClass().getMethod("stopStream", null));
                     node.getRpcDispactcher().callRemoteMethods(null, mCall, opts);
+                    log.debug("Stop dispatched");
                     break;
                 case "resume":
                     mCall = new MethodCall(node.getClass().getMethod("resumePlayer", null));
                     node.getRpcDispactcher().callRemoteMethods(null, mCall, opts);
-                    return;
+                    log.debug("Resume dispatched");
+                    break;
                 default:
                     break;
             }
         }
+        log.debug("Left the invoke loop");
         MethodCall mCall = new MethodCall(node.getClass().getMethod("closePlayer", null));
         node.getRpcDispactcher().callRemoteMethods(null, mCall, opts);
     }
@@ -121,5 +129,15 @@ public class ServerState implements State, RequestHandler {
     @Override
     public Object handle(Message message) throws Exception {
         return null;
+    }
+
+    private void sendMetada() throws Exception
+    {
+        mFileHandler = new MFileHandler(node.getFilename());
+        mFileHandler.handleMetadata();
+        Metadata metadata = mFileHandler.getMetadata();
+        Message msg = new Message(null, metadata).putHeader(Node.ID, new
+                FileHeader(node.getFilename(), false, 0, 0));
+        rspList = node.getMsgDispatcher().castMessage(null,msg, opts);
     }
 }

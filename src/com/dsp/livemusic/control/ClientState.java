@@ -1,5 +1,8 @@
-package com.dsp.livemusic;
+package com.dsp.livemusic.control;
 
+import com.dsp.livemusic.model.Metadata;
+import com.dsp.livemusic.model.SongModel;
+import org.apache.log4j.Logger;
 import org.jgroups.Message;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.util.Util;
@@ -17,6 +20,7 @@ public class ClientState implements RequestHandler, State {
 
     private Map<String, OutputStream> files = new ConcurrentHashMap<String, OutputStream>();
     private Node node;
+    private final static Logger log = Logger.getLogger(ClientState.class);
 
     public ClientState(Node node) throws Exception {
         this.node = node;
@@ -33,6 +37,14 @@ public class ClientState implements RequestHandler, State {
         FileHeader hdr = (FileHeader) msg.getHeader(Node.ID);
         if (hdr == null)
             return "Fail";
+        if (hdr.msgType == 0)
+        {
+            Metadata mData = (Metadata)msg.getObject();
+            SongModel model = new SongModel(mData);
+            log.debug(String.format("Bitrate: %s\nSample rate: %s\nTime: %s", model.getBitRate(), model.getSampleRate(),model.getTime()));
+            log.debug("Metadata received successfully!");
+            return "Success!";
+        }
         OutputStream out = files.get(hdr.filename);
         int frames = hdr.frame;
         try {

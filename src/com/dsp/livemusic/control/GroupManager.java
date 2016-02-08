@@ -1,10 +1,7 @@
-package com.dsp.livemusic;
+package com.dsp.livemusic.control;
 
-import com.dsp.livemusic.Node;
-import com.dsp.livemusic.State;
 import org.jgroups.Address;
 import org.jgroups.JChannel;
-import org.jgroups.MembershipListener;
 import org.jgroups.View;
 
 import java.util.Map;

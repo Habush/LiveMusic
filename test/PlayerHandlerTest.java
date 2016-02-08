@@ -1,8 +1,7 @@
-import com.dsp.livemusic.PlayerHandler;
-import com.dsp.livemusic.PlayerState;
+import com.dsp.livemusic.control.PlayerHandler;
+import com.dsp.livemusic.control.PlayerState;
 import static org.hamcrest.CoreMatchers.*;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

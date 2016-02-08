@@ -1,4 +1,4 @@
-package com.dsp.livemusic;
+package com.dsp.livemusic.control;
 
 import javazoom.jl.decoder.JavaLayerException;
 import org.jgroups.Address;
@@ -54,6 +54,10 @@ public class Node implements  MembershipListener {
 
     public void pauseStream() throws JavaLayerException{
         playerHandler.pause();
+    }
+
+    public void stopStream() throws JavaLayerException{
+        playerHandler.stop();
     }
 
     public void closePlayer() {

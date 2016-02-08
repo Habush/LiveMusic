@@ -1,7 +1,8 @@
-package com.dsp.livemusic;
+package com.dsp.livemusic.control;
 
 /**
  * Created by Xabush Semrie on 2/5/2016.
+ * Client Application entry point.
  */
 public class MainClient {
 

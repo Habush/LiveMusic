@@ -1,10 +1,7 @@
-package com.dsp.livemusic;
+package com.dsp.livemusic.control;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
-import javazoom.jl.player.advanced.AdvancedPlayer;
-import javazoom.jl.player.advanced.PlaybackEvent;
-import javazoom.jl.player.advanced.PlaybackListener;
 
 import java.io.FileInputStream;
 

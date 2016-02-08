@@ -31,3 +31,4 @@ target/
 .idea/
 pom.xml
 src/client/test.mp3
+res/test.mp3
