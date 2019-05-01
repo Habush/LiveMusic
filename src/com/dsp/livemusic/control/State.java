@@ -1,4 +1,4 @@
-package com.dsp.livemusic.control;
+package com.dsp.livemusic;
 
 /**
  * Created by Xabush Semrie on 2/5/2016.
